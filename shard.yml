@@ -1,11 +1,11 @@
-name: service_manager
+name: prefect
 version: 0.1.0
 
 authors:
   - Aravinda Vishwanathapura <mail@aravindavk.in>
 
 targets:
-  service-manager:
+  prefect:
     main: src/main.cr
 
 description: |

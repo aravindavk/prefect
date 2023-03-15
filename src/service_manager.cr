@@ -163,6 +163,9 @@ module ServiceManager
 
     Dir.mkdir_p @@svc_dir
 
+    # Update self PID
+    File.write("#{@@svc_dir}/pid", "#{Process.pid}")
+
     Signal::INT.trap do
       wait_services
       exit 1
@@ -171,6 +174,11 @@ module ServiceManager
     Signal::HUP.trap do
       Log.info { "Received reload signal" }
       watch
+      status = Hash(String, Bool).new
+      @@services.each do |_key, svc|
+        status[svc.name] = running?(svc.name)
+      end
+      File.write("#{@@svc_dir}/status", status.to_json)
     end
 
     loop do

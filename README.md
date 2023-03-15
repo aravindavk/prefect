@@ -1,4 +1,4 @@
-# Services manager
+# Prefect
 
 Lightweight manager for running processes.
 
@@ -9,26 +9,26 @@ Lightweight manager for running processes.
 Start the Service manager service. 
 
 ```
-service-manager mgr --svc-dir=/var/lib/kadalu/services
+prefect mgr --svc-dir=/home/ubuntu/services
 ```
 
 ### Add a new service
 
 ```
-service-manager add <name> <arg1> <arg2> ...
+prefect add <name> <arg1> <arg2> ...
 ```
 
 ```
-export SVC_DIR=/var/lib/kadalu/services
-service-manager add kadalu-mgr kadalu mgr --port=3000
+export PREFECT_DIR=/home/ubuntu/services
+prefect add kadalu-mgr /usr/sbin/kadalu mgr --port=3000
 ```
 
-Above command creates a service file under `SVC_DIR` (`$SVC_DIR/kadalu-mgr.json`). Also caches the content in memory.
+Above command creates a service file under `SVC_DIR` (`$PREFECT_DIR/kadalu-mgr.json`). Also caches the content in memory.
 
 ### Delete a service
 
 ```
-service-manager delete kadalu-mgr
+prefect delete kadalu-mgr
 ```
 
 This deletes the service file.
@@ -36,21 +36,21 @@ This deletes the service file.
 ### List the managed services
 
 ```
-service-manager list
-service-manager list --status
+prefect list
+prefect list --status
 ```
 
 ### Send signal to a service
 
 ```
-service-manager signal <service-name> <signal>
-service-manager signal kadalu-mgr SIGHUP
+prefect signal <service-name> <signal>
+prefect signal kadalu-mgr SIGHUP
 ```
 
 ### Restart the service
 
 ```
-service-manager restart <service-name>
+prefect restart <service-name>
 ```
 
 Terminates the running service by looking at PID and then service manager will take care of starting it.
@@ -58,7 +58,7 @@ Terminates the running service by looking at PID and then service manager will t
 ### Update the args or change the service
 
 ```
-service-manager update kadalu-mgr kadalu mgr --port=3001
+prefect update kadalu-mgr /usr/local/sbin/kadalu mgr --port=3001
 ```
 
 This command updates the service file.
