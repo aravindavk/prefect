@@ -5,7 +5,8 @@ module ServiceManager
   struct Service
     include JSON::Serializable
 
-    property name = "", path = "", args = [] of String, pid = 0, signal = 0, restart = false, auto_restart = false
+    property name = "", path = "", args = [] of String, pid = 0, signal = 0
+    property? restart = false, auto_restart = false
 
     def initialize(@name)
     end
@@ -43,7 +44,7 @@ module ServiceManager
   end
 
   def self.handle_auto_restart(svc)
-    return unless svc.auto_restart
+    return unless svc.auto_restart?
 
     unless running?(svc.name)
       proc = @@processes[svc.name]?
@@ -117,7 +118,7 @@ module ServiceManager
     end
 
     # Restart requested
-    if svc.restart
+    if svc.restart?
       restart_service(svc)
       Log.info &.emit("RESTART", name: svc.name)
     end
@@ -131,7 +132,7 @@ module ServiceManager
     @@services[svc.name] = svc
 
     # Reset the service file content
-    if svc.signal != 0 || svc.restart
+    if svc.signal != 0 || svc.restart?
       svc.restart = false
       svc.signal = 0
       File.write("#{@@svc_dir}/#{svc.name}.json", svc.to_json)

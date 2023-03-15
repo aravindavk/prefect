@@ -4,6 +4,12 @@ Lightweight manager for running processes.
 
 ## Install
 
+Run below command to download and install the `prefect` tool.
+
+```
+curl -fsSL https://github.com/aravinda/prefect/releases/latest/download/install.sh | sudo bash -x
+```
+
 ## Usage
 
 Start the Service manager service. 
