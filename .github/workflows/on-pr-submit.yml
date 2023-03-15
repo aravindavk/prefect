@@ -1,0 +1,28 @@
+name: Run on every PR
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - 'docs/**'
+      - 'extras/**'
+      - '**.md'
+      - '**.adoc'
+
+jobs:
+  # TODO: Add unit test as well here
+  tests:
+    name: Prefect Tests
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Crystal
+        run: |
+          curl -fsSL https://crystal-lang.org/install.sh | sudo bash
+      - name: Format Check
+        run: crystal tool format --check src spec
+      - name: Lint
+        run: |
+          shards install
+          bin/ameba src spec

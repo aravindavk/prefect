@@ -2,6 +2,9 @@ require "option_parser"
 
 require "./prefect"
 
+# Set VERSION during build time
+VERSION = {{ env("VERSION") && env("VERSION") != "" ? env("VERSION") : `git describe --always --tags --match "[0-9]*" --dirty`.chomp.stringify }}
+
 Log.setup(:info)
 
 subcommand = ""
@@ -9,7 +12,7 @@ svc_dir = ""
 auto_restart = false
 pos_args = [] of String
 
-parser = OptionParser.new do |parser|
+main_parser = OptionParser.new do |parser|
   parser.banner = "Usage: prefect [subcommand] [arguments]"
   parser.on("mgr", "Start the service manager") do
     subcommand = "mgr"
@@ -50,7 +53,7 @@ parser = OptionParser.new do |parser|
   end
 
   parser.on("--version", "Show version information") do
-    puts "TODO: Show version"
+    puts "Prefect #{VERSION}"
     exit
   end
 
@@ -58,12 +61,11 @@ parser = OptionParser.new do |parser|
     puts parser
     exit
   end
-  parser.invalid_option do |flag|
-  end
+  parser.invalid_option { }
   parser.unknown_args { |args, _| pos_args = args }
 end
 
-parser.parse
+main_parser.parse
 
 def print_status(data)
   data.each do |key, value|

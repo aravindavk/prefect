@@ -1,0 +1,38 @@
+name: "On Release"
+
+on:
+  push:
+    # Publish `1.2.3` tags as releases.
+    tags:
+      - "*"
+
+  # Allow to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  release_amd64_arm64:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Binnacle
+        run: |
+          curl -fsSL https://github.com/kadalu/binnacle/releases/latest/download/install.sh | sudo bash -x
+          binnacle --version
+      - name: Release builds
+        run: sudo VERSION="${{ github.ref_name }}" binnacle -vv ci/release_build.t
+      - name: Upload binary files to the release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: bin/prefect-*
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
+      - name: Upload install.sh file to the release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: extras/install.sh
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
