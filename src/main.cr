@@ -87,7 +87,7 @@ case subcommand
 when "mgr"
   Prefect.run(svc_dir)
 when "add"
-  validate_pos_args(parser, pos_args, 2)
+  validate_pos_args(main_parser, pos_args, 2)
   args = pos_args[1].split(" ")
   Prefect.add_service(
     pos_args[0],
@@ -96,7 +96,7 @@ when "add"
     auto_restart
   )
 when "update"
-  validate_pos_args(parser, pos_args, 2)
+  validate_pos_args(main_parser, pos_args, 2)
   args = pos_args[1].split(" ")
   Prefect.update_service(
     pos_args[0],
@@ -105,13 +105,13 @@ when "update"
     auto_restart
   )
 when "delete"
-  validate_pos_args(parser, pos_args, 1)
+  validate_pos_args(main_parser, pos_args, 1)
   Prefect.delete_service(pos_args[0])
 when "restart"
-  validate_pos_args(parser, pos_args, 1)
+  validate_pos_args(main_parser, pos_args, 1)
   Prefect.restart_service(pos_args[0])
 when "signal"
-  validate_pos_args(parser, pos_args, 2)
+  validate_pos_args(main_parser, pos_args, 2)
   Prefect.signal_service(pos_args[0], pos_args[1].to_i)
 when "status"
   data = Prefect.status_of_services
