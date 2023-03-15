@@ -6,6 +6,9 @@ module ServiceManager
     include JSON::Serializable
 
     property name = "", path = "", args = [] of String, pid = 0, signal = 0, restart = false, auto_restart = false
+
+    def initialize(@name)
+    end
   end
 
   class_property services = Hash(String, Service).new
@@ -64,12 +67,12 @@ module ServiceManager
 
   private def self.start_service(svc)
     return if running?(svc.name)
-    Log.info &.emit("Starting the service", name: svc.name, cmd: "#{svc.args.join(" ")}")
+    Log.info &.emit("Starting the service", name: svc.name, path: svc.path, args: svc.args)
 
     proc = Process.new(svc.path, svc.args)
     @@processes[svc.name] = proc
   rescue File::NotFoundError
-    Log.error &.emit("Failed to start the service", name: svc.name, path: svc.path, args: svc.args.join(" "))
+    Log.error &.emit("Failed to start the service", name: svc.name, path: svc.path, args: svc.args)
   end
 
   private def self.stop_service(svc)
@@ -77,6 +80,7 @@ module ServiceManager
     return unless proc
 
     proc.terminate
+    @@processes.delete(svc.name)
   end
 
   private def self.restart_service(svc)
@@ -98,7 +102,7 @@ module ServiceManager
   end
 
   def self.handle_new(svc)
-    Log.info { "NEW service (#{svc.name}) #{svc.args.join(" ")}" }
+    Log.info &.emit("NEW service", name: svc.name, path: svc.path, args: svc.args)
     @@services[svc.name] = svc
     start_service(svc)
   end
@@ -106,24 +110,22 @@ module ServiceManager
   def self.handle_modified(existing_svc, svc)
     # Service args changed
     if existing_svc.args != svc.args
-      Log.info { "MODIFY (#{svc.name}) #{existing_svc.args.join(" ")} => #{svc.args.join(" ")}" }
+      Log.info &.emit("MODIFY", name: svc.name, existing_path: existing_svc.path,
+        path: svc.path, existing_args: existing_svc.args, args: svc.args)
       stop_service(existing_svc)
       start_service(svc)
-      return
     end
 
     # Restart requested
     if svc.restart
       restart_service(svc)
-      Log.info { "RESTART (#{svc.name})" }
-      return
+      Log.info &.emit("RESTART", name: svc.name)
     end
 
     # Send signal
     if svc.signal != 0
       signal_service(svc, svc.signal)
-      Log.info { "SIGNAL (#{svc.name}) #{Signal.from_value(svc.signal)}" }
-      return
+      Log.info &.emit("SIGNAL", name: svc.name, signal: Signal.from_value(svc.signal).to_s)
     end
 
     @@services[svc.name] = svc
@@ -137,7 +139,7 @@ module ServiceManager
   end
 
   def self.handle_deleted(svc)
-    Log.info { "DELETE service (#{svc.name}) #{svc.args.join(" ")}" }
+    Log.info &.emit("DELETE", name: svc.name)
 
     @@services.delete(svc.name)
     stop_service(svc)

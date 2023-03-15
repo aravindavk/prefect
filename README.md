@@ -20,7 +20,7 @@ prefect add <name> <arg1> <arg2> ...
 
 ```
 export PREFECT_DIR=/home/ubuntu/services
-prefect add kadalu-mgr /usr/sbin/kadalu mgr --port=3000
+prefect add kadalu-mgr "/usr/sbin/kadalu mgr --port=3000" --auto-restart
 ```
 
 Above command creates a service file under `SVC_DIR` (`$PREFECT_DIR/kadalu-mgr.json`). Also caches the content in memory.
@@ -36,8 +36,7 @@ This deletes the service file.
 ### List the managed services
 
 ```
-prefect list
-prefect list --status
+prefect status
 ```
 
 ### Send signal to a service
